@@ -10,29 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCOTS6dfIlaUAWaeN8w250sp1cWW2Drq6Y",
-    authDomain: "bbm-teambuilding-2026.firebaseapp.com",
-    projectId: "bbm-teambuilding-2026",
-    storageBucket: "bbm-teambuilding-2026.firebasestorage.app",
-    messagingSenderId: "897589094822",
-    appId: "1:897589094822:web:4a23d11d3334cfc3e68767",
-    measurementId: "G-9D6GFCVQMR"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -296,10 +273,11 @@
                 },
 
                 get totalSlides() {
+                    if (this.viewMode === 'carpooling') return 1;
                     if (this.viewMode === 'manager' && !this.isLocked) {
-                        return this.options.length + 3; // 3 options + 3 slides (Intro, Matrice, Report) = 6
+                        return this.options.length + 3;
                     } else {
-                        return 4; // 4 slides (Invito, Form, Carpooling pubblico, Ringraziamento)
+                        return 4;
                     }
                 },
 
@@ -792,6 +770,9 @@
                 <button @click="switchMode('team')" :class="viewMode === 'team' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-users"></i> Vista Team
                 </button>
+                <button @click="switchMode('carpooling')" :class="viewMode === 'carpooling' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-car"></i> Vista Auto
+                </button>
             </div>
 
             <!-- Badge di Stato Sicurezza -->
@@ -904,6 +885,236 @@
 
         <div class="max-w-5xl w-full bg-slate-950/60 border border-slate-800 rounded-3xl p-6 md:p-12 shadow-2xl relative min-h-[550px] flex flex-col justify-between slide-enter" :key="currentSlide + '-' + viewMode + '-' + isLocked">
             
+            
+            <!-- ================= MODALITA' VISTA AUTO ================= -->
+            <template x-if="viewMode === 'carpooling'">
+                <div class="space-y-6 slide-enter">
+
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2 text-emerald-400 mb-1">
+                                <span class="h-1 w-8 bg-emerald-500 rounded-full"></span>
+                                <span class="text-xs uppercase font-extrabold tracking-widest">Logistica Carpooling</span>
+                            </div>
+                            <h2 class="text-3xl font-extrabold text-white">Gestione <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Posti Auto</span></h2>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs font-bold">
+                            <div class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl flex items-center gap-2">
+                                <i class="fa-solid fa-car text-emerald-400"></i>
+                                <span class="text-slate-400">Auto:</span>
+                                <span class="text-white" x-text="getDrivers().length"></span>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl flex items-center gap-2">
+                                <i class="fa-solid fa-chair text-indigo-400"></i>
+                                <span class="text-slate-400">Posti totali:</span>
+                                <span class="text-white" x-text="totalCarSeatsOffered"></span>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl flex items-center gap-2">
+                                <i class="fa-solid fa-user-check text-emerald-400"></i>
+                                <span class="text-slate-400">Assegnati:</span>
+                                <span class="text-emerald-400" x-text="rsvps.filter(r => r.attending === 'si' && r.carOption === 'passenger' && r.assignedDriver).length"></span>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl flex items-center gap-2">
+                                <i class="fa-solid fa-user-clock text-amber-400"></i>
+                                <span class="text-slate-400">In attesa:</span>
+                                <span class="text-amber-400" x-text="getUnassignedPassengers().length"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress bar occupazione -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Occupazione posti</span>
+                            <span class="text-xs font-bold text-white">
+                                <span x-text="rsvps.filter(r => r.attending === 'si' && r.carOption === 'passenger' && r.assignedDriver).length"></span>
+                                /
+                                <span x-text="totalCarSeatsOffered"></span> posti
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2.5">
+                            <div class="h-2.5 rounded-full transition-all duration-500"
+                                :class="(totalCarSeatsOffered === 0 ? 0 : rsvps.filter(r => r.attending === 'si' && r.carOption === 'passenger' && r.assignedDriver).length / totalCarSeatsOffered) > 0.8 ? 'bg-rose-500' : 'bg-emerald-500'"
+                                :style="'width: ' + (totalCarSeatsOffered > 0 ? Math.min(100, Math.round(rsvps.filter(r => r.attending === 'si' && r.carOption === 'passenger' && r.assignedDriver).length / totalCarSeatsOffered * 100)) : 0) + '%'">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto disponibili -->
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-car-side text-emerald-400"></i> Auto disponibili
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <template x-for="driver in getDrivers()" :key="driver.id">
+                                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                                <i class="fa-solid fa-steering-wheel text-emerald-400 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-white" x-text="driver.name"></p>
+                                                <p class="text-xs text-slate-500 italic" x-text="driver.notes || 'Nessuna nota'"></p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs font-extrabold px-2.5 py-1 rounded-full"
+                                            :class="(driver.carSeats - getAssignedToDriver(driver.name).length) === 0 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'"
+                                            x-text="(driver.carSeats - getAssignedToDriver(driver.name).length) + '/' + driver.carSeats + ' liberi'">
+                                        </span>
+                                    </div>
+
+                                    <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                        <div class="h-1.5 rounded-full transition-all duration-500"
+                                            :class="getAssignedToDriver(driver.name).length >= driver.carSeats ? 'bg-rose-500' : 'bg-emerald-500'"
+                                            :style="'width: ' + (driver.carSeats > 0 ? Math.round(getAssignedToDriver(driver.name).length / driver.carSeats * 100) : 0) + '%'">
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <template x-for="p in getAssignedToDriver(driver.name)" :key="p.id">
+                                            <div class="flex items-center justify-between bg-slate-950/60 rounded-lg px-2.5 py-1.5">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-user text-indigo-400 text-xs"></i>
+                                                    <span class="text-xs font-semibold text-slate-200" x-text="p.name"></span>
+                                                    <span x-show="p.diet && p.diet !== 'Nessuna'" class="text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full" x-text="p.diet"></span>
+                                                </div>
+                                                <button x-show="!isLocked" @click="unassignPassenger(p.id)"
+                                                    class="text-rose-500 hover:text-rose-400 text-xs flex items-center gap-1 transition-colors" title="Rimuovi assegnazione">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-for="i in (driver.carSeats - getAssignedToDriver(driver.name).length)" :key="'slot-' + driver.id + '-' + i">
+                                            <div class="flex items-center gap-2 bg-slate-950/30 border border-dashed border-slate-800 rounded-lg px-2.5 py-1.5">
+                                                <i class="fa-solid fa-ellipsis text-slate-700 text-xs"></i>
+                                                <span class="text-xs text-slate-600 italic">Posto libero</span>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <div x-show="!isLocked && getAssignedToDriver(driver.name).length < driver.carSeats && getUnassignedPassengers().length > 0"
+                                        class="border-t border-slate-800 pt-3">
+                                        <p class="text-xs text-slate-500 font-bold uppercase mb-1.5">Assegna passeggero</p>
+                                        <div class="flex gap-2">
+                                            <select class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                                                :id="'sel-' + driver.id">
+                                                <option value="">Seleziona...</option>
+                                                <template x-for="p in getUnassignedPassengers()" :key="p.id">
+                                                    <option :value="p.id" x-text="p.name"></option>
+                                                </template>
+                                            </select>
+                                            <button @click="const sel = document.getElementById('sel-' + driver.id); if(sel && sel.value){ assignPassenger(sel.value, driver.name); sel.value=''; }"
+                                                class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div x-show="getDrivers().length === 0"
+                                class="col-span-full text-center py-12 text-slate-500">
+                                <i class="fa-solid fa-car-burst text-4xl mb-3 block text-slate-700"></i>
+                                <p class="text-sm font-semibold">Nessun conducente registrato</p>
+                                <p class="text-xs mt-1">Quando qualcuno si registra come autista appare qui.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passeggeri in attesa e autonomi -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-900 border border-amber-500/20 rounded-2xl p-4">
+                            <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                In attesa di passaggio
+                                <span class="ml-auto bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full" x-text="getUnassignedPassengers().length"></span>
+                            </p>
+                            <div class="space-y-2">
+                                <template x-for="p in getUnassignedPassengers()" :key="p.id">
+                                    <div class="flex items-center justify-between bg-slate-950/50 rounded-lg px-3 py-2">
+                                        <div>
+                                            <p class="text-xs font-bold text-white" x-text="p.name"></p>
+                                            <p class="text-xs text-slate-500 italic" x-text="p.notes || 'Nessuna nota'"></p>
+                                        </div>
+                                        <span x-show="p.diet && p.diet !== 'Nessuna'" class="text-xs bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full" x-text="p.diet"></span>
+                                    </div>
+                                </template>
+                                <div x-show="getUnassignedPassengers().length === 0" class="text-xs text-slate-600 text-center py-4 italic">
+                                    Tutti assegnati ✅
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-700/40 rounded-2xl p-4">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-person-walking"></i>
+                                Spostamento autonomo
+                                <span class="ml-auto bg-slate-700/50 text-slate-400 px-2 py-0.5 rounded-full" x-text="rsvps.filter(r => r.attending === 'si' && r.carOption === 'autonomous').length"></span>
+                            </p>
+                            <div class="space-y-2">
+                                <template x-for="p in rsvps.filter(r => r.attending === 'si' && r.carOption === 'autonomous')" :key="p.id">
+                                    <div class="flex items-center bg-slate-950/50 rounded-lg px-3 py-2">
+                                        <div>
+                                            <p class="text-xs font-bold text-white" x-text="p.name"></p>
+                                            <p class="text-xs text-slate-500 italic" x-text="p.notes || 'Nessuna nota'"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="rsvps.filter(r => r.attending === 'si' && r.carOption === 'autonomous').length === 0"
+                                    class="text-xs text-slate-600 text-center py-4 italic">Nessuno.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabella riepilogo completo -->
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-indigo-400"></i> Riepilogo completo
+                        </h3>
+                        <div class="overflow-x-auto rounded-xl border border-slate-800">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider sticky top-0">
+                                    <tr>
+                                        <th class="p-3 font-bold">Nome</th>
+                                        <th class="p-3 font-bold">Ruolo</th>
+                                        <th class="p-3 font-bold">Auto / Passaggio</th>
+                                        <th class="p-3 font-bold">Dieta</th>
+                                        <th class="p-3 font-bold">Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60 bg-slate-950/20">
+                                    <template x-for="r in rsvps.filter(r => r.attending === 'si')" :key="r.id">
+                                        <tr class="hover:bg-slate-900/40">
+                                            <td class="p-3 font-semibold text-white" x-text="r.name"></td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded-full text-xs font-bold"
+                                                    :class="r.carOption === 'driver' ? 'bg-emerald-500/20 text-emerald-400' : r.carOption === 'passenger' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-700/50 text-slate-400'"
+                                                    x-text="r.carOption === 'driver' ? 'Conducente' : r.carOption === 'passenger' ? 'Passeggero' : 'Autonomo'">
+                                                </span>
+                                            </td>
+                                            <td class="p-3">
+                                                <span x-show="r.carOption === 'driver'" class="text-emerald-400 font-semibold" x-text="r.carSeats + ' posti offerti'"></span>
+                                                <span x-show="r.carOption === 'passenger' && r.assignedDriver" class="text-indigo-400" x-text="'Con ' + r.assignedDriver"></span>
+                                                <span x-show="r.carOption === 'passenger' && !r.assignedDriver" class="text-amber-400 italic">Non assegnato</span>
+                                                <span x-show="r.carOption === 'autonomous'" class="text-slate-500 italic">—</span>
+                                            </td>
+                                            <td class="p-3 text-slate-400" x-text="r.diet || 'Nessuna'"></td>
+                                            <td class="p-3 text-slate-500 italic" x-text="r.notes || '—'"></td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="rsvps.filter(r => r.attending === 'si').length === 0">
+                                        <td colspan="5" class="p-8 text-center text-slate-600">Nessuna adesione ancora.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </template>
+
             <!-- ================= MODALITÀ MANAGER ================= -->
             <template x-if="viewMode === 'manager' && !isLocked">
                 <div>
