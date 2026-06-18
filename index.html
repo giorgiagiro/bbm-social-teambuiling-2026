@@ -751,6 +751,68 @@
             }));
         });
     </script>
+        <!-- ================================================================
+         🔥 CONFIGURAZIONE FIREBASE — LEGGI QUI
+         ================================================================
+
+         STEP 1 — Crea il progetto Firebase (gratis, nessuna carta)
+         ----------------------------------------------------------
+         1. Vai su: https://console.firebase.google.com
+         2. Clicca "Aggiungi progetto"
+         3. Nome progetto: bbm-teambuilding-2026
+         4. Disabilita Google Analytics (non ti serve)
+         5. Clicca "Crea progetto"
+
+         STEP 2 — Abilita Firestore Database
+         ------------------------------------
+         1. Nel menu a sinistra: Build → Firestore Database
+         2. Clicca "Crea database"
+         3. Scegli "Modalità test" (poi puoi cambiare)
+         4. Region: eur3 (europe-west) → Avanti → Fine
+
+         STEP 3 — Abilita il login anonimo
+         ----------------------------------
+         1. Nel menu a sinistra: Build → Authentication
+         2. Clicca "Inizia"
+         3. Tab "Sign-in method" → clicca "Anonimo"
+         4. Attiva l'interruttore → Salva
+
+         STEP 4 — Ottieni le credenziali
+         --------------------------------
+         1. Clicca l'icona ⚙️ in alto a sinistra → "Impostazioni progetto"
+         2. Scorri in basso fino a "Le tue app"
+         3. Clicca l'icona </> (Web)
+         4. Nickname app: TeamBuilding Web → Registra app
+         5. Firebase ti mostra un blocco "firebaseConfig" con tutti i valori
+         6. Copia quei valori e incollali qui sotto (sostituisci i INSERISCI_QUI)
+
+         STEP 5 — Condividi il file HTML al team
+         ----------------------------------------
+         Una volta inserita la config, carica il file su:
+         - Google Drive (condivisione link "Chiunque abbia il link")
+         - Oppure qualsiasi hosting statico (Netlify Drop, GitHub Pages, ecc.)
+         Ogni membro del team che apre il link vede i dati in TEMPO REALE.
+
+         ================================================================ -->
+    <script>
+        // ▼▼▼ STEP 4 — INCOLLA QUI I TUOI DATI FIREBASE ▼▼▼
+
+        var __firebase_config = JSON.stringify({
+            apiKey: "AIzaSyCOTS6dfIlaUAWaeN8w250sp1cWW2Drq6Y",
+            authDomain: "bbm-teambuilding-2026.firebaseapp.com",
+            projectId: "bbm-teambuilding-2026",
+            storageBucket: "bbm-teambuilding-2026.firebasestorage.app",
+            messagingSenderId: "897589094822",
+            appId: "1:897589094822:web:4a23d11d3334cfc3e68767",
+            measurementId: "G-9D6GFCVQMR"
+        });
+
+        // ▲▲▲ FINE — salva il file e aprilo nel browser ▲▲▲
+
+        // ID univoco della tua sessione (non cambiare)
+        var __app_id = 'bbm-teambuilding-autunno-2026';
+    </script>
+
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden" x-data="presentationApp()">
