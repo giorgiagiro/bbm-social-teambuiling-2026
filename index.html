@@ -282,8 +282,8 @@
                 },
 
                 switchMode(mode) {
-                    if (this.isLocked && mode !== 'carpooling') {
-                        if (mode === 'manager') this.openUnlockModal();
+                    if (this.isLocked && mode === 'manager') {
+                        this.openUnlockModal();
                         return;
                     }
                     this.viewMode = mode;
