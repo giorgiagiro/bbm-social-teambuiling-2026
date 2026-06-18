@@ -794,20 +794,14 @@
          Ogni membro del team che apre il link vede i dati in TEMPO REALE.
 
          ================================================================ -->
+    <script src="./firebase-config.js"></script>
     <script>
-        // ▼▼▼ STEP 4 — INCOLLA QUI I TUOI DATI FIREBASE ▼▼▼
-
-        var __firebase_config = JSON.stringify({
-            apiKey: "AIzaSyCOTS6dfIlaUAWaeN8w250sp1cWW2Drq6Y",
-            authDomain: "bbm-teambuilding-2026.firebaseapp.com",
-            projectId: "bbm-teambuilding-2026",
-            storageBucket: "bbm-teambuilding-2026.firebasestorage.app",
-            messagingSenderId: "897589094822",
-            appId: "1:897589094822:web:4a23d11d3334cfc3e68767",
-            measurementId: "G-9D6GFCVQMR"
-        });
-
-        // ▲▲▲ FINE — salva il file e aprilo nel browser ▲▲▲
+        
+        // Carica la configurazione Firebase da `firebase-config.js` (ignorato dal repo).
+        // Se mancante, il codice gestisce l'assenza e lavora offline.
+        if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+            console.warn('Nessuna configurazione Firebase trovata. Crea SlideFinali/firebase-config.js con window.__firebase_config = JSON.stringify({...})');
+        }
 
         // ID univoco della tua sessione (non cambiare)
         var __app_id = 'bbm-teambuilding-autunno-2026';
