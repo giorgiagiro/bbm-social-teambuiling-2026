@@ -282,8 +282,8 @@
                 },
 
                 switchMode(mode) {
-                    if (this.isLocked && mode === 'manager') {
-                        this.openUnlockModal();
+                    if (this.isLocked && mode !== 'carpooling') {
+                        if (mode === 'manager') this.openUnlockModal();
                         return;
                     }
                     this.viewMode = mode;
@@ -825,16 +825,20 @@
             </div>
             
             <!-- SELETTORE MODALITA' -->
-            <div x-show="!isLocked" class="bg-slate-900 p-1 rounded-xl border border-slate-800 flex items-center">
-                <button @click="switchMode('manager')" :class="viewMode === 'manager' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-tie"></i> Vista Manager
-                </button>
-                <button @click="switchMode('team')" :class="viewMode === 'team' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-users"></i> Vista Team
-                </button>
-                <button @click="switchMode('carpooling')" :class="viewMode === 'carpooling' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-car"></i> Vista Auto
-                </button>
+            <div class="flex items-center gap-2">
+                <div x-show="!isLocked" class="bg-slate-900 p-1 rounded-xl border border-slate-800 flex items-center">
+                    <button @click="switchMode('manager')" :class="viewMode === 'manager' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-tie"></i> Vista Manager
+                    </button>
+                    <button @click="switchMode('team')" :class="viewMode === 'team' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-users"></i> Vista Team
+                    </button>
+                </div>
+                <div class="bg-slate-900 p-1 rounded-xl border border-slate-800 flex items-center">
+                    <button @click="switchMode('carpooling')" :class="viewMode === 'carpooling' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-car"></i> Vista Auto
+                    </button>
+                </div>
             </div>
 
             <!-- Badge di Stato Sicurezza -->
